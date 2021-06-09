@@ -9,6 +9,7 @@ import webservicesproject.repositories.UserRepository;
 import webservicesproject.services.exceptions.DatabaseException;
 import webservicesproject.services.exceptions.ResourceNotFoundException;
 
+import javax.persistence.EntityNotFoundException;
 import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.Optional;
@@ -43,9 +44,13 @@ public class UserService {
     }
 
     public User update(Long id, User obj) {
-        User entity = repository.getOne(id);
-        updateData(entity, obj);
-        return repository.save(entity);
+        try {
+            User entity = repository.getOne(id);
+            updateData(entity, obj);
+            return repository.save(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException(id);
+        }
     }
 
     private void updateData(User entity, User obj) {
